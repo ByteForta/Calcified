@@ -3,11 +3,12 @@ package dev.frozenmilk.dairy.calcified.hardware.controller.calculation
 import dev.frozenmilk.util.units.ReifiedUnit
 import dev.frozenmilk.util.units.Unit
 
-class DoubleDComponent(var kD: Double) : CalculationComponent<Double> {
+class DoubleDComponent(var kD: (currentState: Double, target: Double, error: Double) -> Double) : CalculationComponent<Double> {
+	constructor(kD: Double): this{kD}
 	private var previousError = 0.0
 
 	override fun calculate(accumulation: Double, currentState: Double, target: Double, error: Double, deltaTime: Double): Double {
-		val result = ((error - previousError) / deltaTime) * kD
+		val result = ((error - previousError) / deltaTime) * kD.invoke(currentState, target, error)
 		previousError = error
 		return accumulation + result
 	}
